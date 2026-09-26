@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark" style="color-scheme: dark;"><head><!-- frame-runtime --><!-- /frame-runtime -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stock Quincaillerie</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF1F3;--card:#fff;--ink:#1B2733;--mut:#5B6B7A;--line:#D5DCE2;--acc:#1D4E89;--acc-t:#fff;--bad:#C8321E;--badbg:#FCE9E6;--ok:#2E7D4F;--wa:#1F8F4E;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121A22;--card:#1B2630;--ink:#E8EEF3;--mut:#93A3B2;--line:#2C3A46;--acc:#5B9BE0;--acc-t:#0B1620;--bad:#FF7A66;--badbg:#3A1F1B;--ok:#5CC48A;--wa:#3FBF7B}}
+:root[data-theme="dark"]{--bg:#121A22;--card:#1B2630;--ink:#E8EEF3;--mut:#93A3B2;--line:#2C3A46;--acc:#5B9BE0;--acc-t:#0B1620;--bad:#FF7A66;--badbg:#3A1F1B;--ok:#5CC48A;--wa:#3FBF7B}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 "Barlow Semi Condensed",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:14px}
+h1{font-size:24px;margin:4px 0 12px}
+h2{font-size:18px;margin:18px 0 8px}
+nav{display:flex;gap:6px;margin-bottom:12px}
+nav button{flex:1;padding:10px 2px;font-size:15px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;border-radius:8px}
+nav button.on{background:var(--acc);color:var(--acc-t);border-color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.alert{background:var(--badbg);border:1px solid var(--bad);color:var(--bad);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-weight:600}
+.alert p{margin:0 0 6px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:130px}
+.row{display:flex;gap:8px;margin-bottom:8px}
+.row>*{flex:1;min-width:0}
+button.b{padding:10px 14px;border:0;border-radius:8px;background:var(--acc);color:var(--acc-t);font:inherit;font-weight:700}
+button.b.wa{background:var(--wa);color:#fff}
+button.b.g{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}
+.item .n{flex:1;min-width:0}
+.item .n b{display:block;overflow-wrap:anywhere}
+.item .n small{color:var(--mut)}
+.qty{font-size:22px;font-weight:700;min-width:52px;text-align:right}
+.low .qty{color:var(--bad)}
+.tag{display:inline-block;font-size:13px;color:var(--bad);font-weight:700}
+.sm{padding:6px 10px;font-size:15px}
+.mut{color:var(--mut)}
+.wrapx{overflow-x:auto}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:var(--bad);color:#fff;padding:12px;border-radius:10px;font-weight:600;display:none;z-index:9}
+.pl{padding:8px 0;border-bottom:1px solid var(--line)}
+.pl .q{width:80px;flex:none}
+.bad{color:var(--bad)}
+</style>
+</head>
+<body>
+<main>
+<h1>Stock Quincaillerie</h1>
+<div id="alerts"></div>
+<nav>
+<button data-t="stock" class="on">Stock</button>
+<button data-t="cmd" class="">Commande</button>
+<button data-t="hist" class="">Historique</button>
+<button data-t="bil" class="">Bilan</button>
+</nav>
+
+<section id="stock">
+<div class="card">
+<div class="row"><input id="nn" placeholder="Nom de l'article (ex : Ciment 50 kg)"></div>
+<div class="row">
+<select id="nd"><option>Menuiserie</option><option>Soudure</option><option>Peinture et finition</option><option>Ciment</option></select>
+<input id="nq" type="number" min="0" inputmode="decimal" placeholder="Quantité">
+<input id="ns" type="number" min="0" inputmode="decimal" placeholder="Seuil min.">
+</div>
+<button class="b" id="add">Ajouter l'article</button>
+</div>
+<div id="list"><h2>Menuiserie</h2><div class="card"><div class="item"><div class="n"><b>Blanche 2'5</b><small>Seuil min. 50</small></div><div class="qty">250</div><button class="b g sm" data-a="in" data-id="1790179324023.7605">+ Entrée</button><button class="b g sm" data-a="del" data-id="1790179324023.7605">✕</button></div><div class="item"><div class="n"><b>Chiffon 6×6</b><small>Seuil min. 50</small></div><div class="qty">500</div><button class="b g sm" data-a="in" data-id="1790179472247.769">+ Entrée</button><button class="b g sm" data-a="del" data-id="1790179472247.769">✕</button></div></div></div>
+</section>
+
+<section id="cmd" hidden="">
+<div class="card">
+<p class="mut" style="margin-top:0">Dans WhatsApp, copie la feuille de commande, puis colle-la ici. Une ligne par article, par exemple : <b>10 Ciment 50 kg</b></p>
+<input id="ce" placeholder="Nom du salarié (facultatif)" style="margin-bottom:8px">
+<textarea id="ct" placeholder="Colle la commande ici"></textarea>
+<div style="height:8px"></div>
+<button class="b" id="an">Lire la commande</button>
+</div>
+<div id="prev"></div>
+</section>
+
+<section id="bil" hidden="">
+<div class="card">
+<div class="row"><input id="bd" type="date"></div>
+<div class="row"><button class="b" id="bsend">Envoyer le bilan sur WhatsApp</button></div>
+<div class="row"><button class="b g" id="bmodel">Envoyer le modèle de commande aux salariés</button></div>
+</div>
+<div id="bl"></div>
+</section>
+
+<section id="hist" hidden="">
+<div id="hl"></div>
+</section>
+<h2>Partager et sauvegarder</h2>
+<div class="card">
+<div class="row"><button class="b wa" id="shwa">Partager l'app</button></div>
+<div class="mut" style="font-size:14px">Pour que tout le monde puisse l'utiliser, partage le fichier « stock-quincaillerie.html ». Chaque téléphone aura son propre stock.</div>
+<div class="row" id="dlrow"><button class="b g" id="dlapp">Télécharger l'app</button><button class="b g" id="dlstock">Télécharger le stock</button></div>
+<div class="row"><button class="b g" id="installHome" hidden>Afficher sur l'écran d'accueil</button></div>
+</div>
+</main>
+<div id="toast"></div>
+
+<script id="app">
+var KEY="stockq_v1";
+var S={items:[],log:[]};
+try{var r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){return false}}
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function norm(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+function low(it){return it.q<=it.s}
+var PV=[];
+
+document.querySelectorAll("nav button").forEach(function(b){b.onclick=function(){
+document.querySelectorAll("nav button").forEach(function(x){x.classList.toggle("on",x===b)});
+["stock","cmd","hist","bil"].forEach(function(t){$(t).hidden=(t!==b.dataset.t)});
+if(b.dataset.t==="hist")renderHist();
+if(b.dataset.t==="bil")renderBil();}});
+
+$("add").onclick=function(){
+var n=$("nn").value.trim();if(!n){toast("Écris le nom de l'article.",1);return}
+var dup=S.items.some(function(i){return norm(i.n)===norm(n)});
+if(dup){toast("Cet article existe déjà.",1);return}
+S.items.push({id:Date.now()+Math.random(),n:n,d:$("nd").value,q:parseFloat($("nq").value)||0,s:parseFloat($("ns").value)||0});
+$("nn").value="";$("nq").value="";$("ns").value="";
+save();render();};
+
+function render(){
+var A=S.items.filter(low);
+var h="";
+if(A.length){
+h='<div class="alert">';
+A.forEach(function(i){h+="<p>⚠ "+esc(i.n)+" : reste "+i.q+" (seuil "+i.s+")</p>"});
+h+='<button class="b wa sm" id="wal">Envoyer l\'alerte sur WhatsApp</button></div>';}
+$("alerts").innerHTML=h;
+if(A.length)$("wal").onclick=function(){waAlert(A)};
+var out="";
+if(!S.items.length)out='<div class="card mut">Aucun article. Ajoute ton premier article ci-dessus.</div>';
+["Menuiserie","Soudure","Peinture et finition","Ciment"].forEach(function(d){
+var L=S.items.filter(function(i){return i.d===d});
+if(!L.length)return;
+out+="<h2>"+d+"</h2><div class=\"card\">";
+L.forEach(function(i){
+out+='<div class="item'+(low(i)?" low":"")+'"><div class="n"><b>'+esc(i.n)+'</b><small>Seuil min. '+i.s+(low(i)?' <span class="tag">Stock bas</span>':"")+'</small></div>'+
+'<div class="qty">'+i.q+'</div>'+
+'<button class="b g sm" data-a="in" data-id="'+i.id+'">+ Entrée</button>'+
+'<button class="b g sm" data-a="del" data-id="'+i.id+'">✕</button></div>';});
+out+="</div>";});
+$("list").innerHTML=out;
+document.querySelectorAll("#list button").forEach(function(b){b.onclick=function(){
+var it=S.items.filter(function(x){return String(x.id)===b.dataset.id})[0];if(!it)return;
+if(b.dataset.a==="in"){var v=parseFloat(prompt("Quantité reçue pour "+it.n+" :"));
+if(v>0){it.q+=v;S.log.unshift({t:Date.now(),k:"Entrée",x:"+"+v+" "+it.n});save();render();}}
+else if(confirm("Supprimer "+it.n+" ?")){S.items=S.items.filter(function(x){return x!==it});save();render();}
+}});}
+
+function waAlert(A){
+var t="Alerte stock bas :\n"+A.map(function(i){return "- "+i.n+" : reste "+i.q+" (seuil "+i.s+")"}).join("\n");
+window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");}
+
+$("an").onclick=function(){
+var lines=$("ct").value.split("\n").map(function(l){return l.trim()}).filter(Boolean);
+if(!lines.length){toast("Colle d'abord la commande.",1);return}
+PV=lines.map(parse);renderPrev();};
+
+function parse(line){
+var L=norm(line),best=null,rest=L;
+S.items.forEach(function(i){var n=norm(i.n);if(L.indexOf(n)>=0&&(!best||n.length>norm(best.n).length))best=i;});
+if(best){rest=L.replace(norm(best.n),"");}
+else{var bs=0;S.items.forEach(function(i){
+var tk=norm(i.n).split(/\s+/).filter(function(w){return w.length>2});
+if(!tk.length)return;
+var c=tk.filter(function(w){return L.indexOf(w)>=0}).length;
+if(c===tk.length&&c>bs){bs=c;best=i;}});
+if(best)norm(best.n).split(/\s+/).forEach(function(w){rest=rest.replace(w,"")});}
+var m=rest.match(/(\d+(?:[.,]\d+)?)/);
+return{line:line,id:best?best.id:"",q:m?parseFloat(m[1].replace(",",".")):1};}
+
+function renderPrev(){
+var h='<h2>Vérifie avant de valider</h2><div class="card">';
+PV.forEach(function(p,k){
+h+='<div class="pl"><div class="mut">'+esc(p.line)+'</div><div class="row" style="margin:6px 0 0"><select data-k="'+k+'" class="sel"><option value="">— Choisir l\'article —</option>'+
+S.items.map(function(i){return '<option value="'+i.id+'"'+(String(i.id)===String(p.id)?" selected":"")+'>'+esc(i.n)+'</option>'}).join("")+
+'</select><input class="q" type="number" min="0" inputmode="decimal" data-k="'+k+'" value="'+p.q+'"></div>'+
+(p.id===""?'<div class="bad">Article non reconnu : choisis-le dans la liste.</div>':"")+'</div>';});
+h+='<div style="height:10px"></div><button class="b" id="ok">Valider et retirer du stock</button></div>';
+$("prev").innerHTML=h;
+document.querySelectorAll(".sel").forEach(function(s){s.onchange=function(){PV[s.dataset.k].id=s.value;renderPrev();}});
+document.querySelectorAll("input.q").forEach(function(s){s.onchange=function(){PV[s.dataset.k].q=parseFloat(s.value)||0;}});
+$("ok").onclick=validate;}
+
+function validate(){
+var newLow=[],done=0,skipped=0;
+PV.forEach(function(p){
+var it=S.items.filter(function(x){return String(x.id)===String(p.id)})[0];
+if(!it||!(p.q>0)){skipped++;return;}
+var was=low(it);
+var q=Math.min(p.q,it.q);
+if(q<p.q)toast("Stock insuffisant pour "+it.n+" : "+it.q+" retiré seulement.",1);
+it.q=Math.round((it.q-q)*100)/100;
+S.log.unshift({t:Date.now(),k:"Commande",x:"-"+q+" "+it.n,e:$("ce").value.trim()});
+done++;
+if(low(it)&&newLow.indexOf(it)<0)newLow.push(it);});
+save();PV=[];$("prev").innerHTML="";$("ct").value="";render();
+if(newLow.length){
+var msg="Seuil minimum atteint : "+newLow.map(function(i){return i.n+" ("+i.q+")"}).join(", ");
+toast(msg,1);
+try{if("Notification" in window){
+if(Notification.permission==="granted")new Notification("Stock bas",{body:msg});
+else if(Notification.permission!=="denied")Notification.requestPermission();}}catch(e){}
+}else toast(done+" article(s) retiré(s) du stock."+(skipped?" "+skipped+" ligne(s) ignorée(s).":""));}
+
+function renderHist(){
+if(!S.log.length){$("hl").innerHTML='<div class="card mut">Aucun mouvement pour le moment.</div>';return}
+var d="",h="";
+S.log.slice(0,200).forEach(function(e){
+var day=new Date(e.t).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+if(day!==d){if(d)h+="</div>";h+="<h2>"+day+'</h2><div class="card">';d=day;}
+h+='<div class="pl"><b>'+e.k+"</b> "+esc(e.x)+(e.e?' <span class="mut">('+esc(e.e)+')</span>':"")+"</div>";});
+$("hl").innerHTML=h+"</div>";}
+
+function ymd(t){var d=new Date(t);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+$("bd").value=ymd(Date.now());
+$("bd").onchange=function(){renderBil()};
+var BT="";
+function bilan(){
+var day=$("bd").value,M={},E={};
+S.log.forEach(function(e){
+if(ymd(e.t)!==day)return;
+var m=/^([+-])([\d.]+) (.*)$/.exec(e.x);if(!m)return;
+var n=m[3],v=parseFloat(m[2]);
+if(!M[n])M[n]={i:0,o:0};
+if(m[1]==="+")M[n].i+=v;else{M[n].o+=v;var w=e.e||"Non précisé";E[w]=(E[w]||0)+v;}});
+return{M:M,E:E,day:day};}
+function renderBil(){
+var B=bilan(),h="",t="Bilan du "+B.day+"\n",names=Object.keys(B.M);
+if(!names.length){h='<div class="card mut">Aucun mouvement ce jour-là.</div>';t+="Aucun mouvement.\n";}
+else{h='<h2>Mouvements du jour</h2><div class="card">';
+names.forEach(function(n){var r=B.M[n],it=S.items.filter(function(x){return x.n===n})[0];
+h+='<div class="pl"><b>'+esc(n)+'</b><div class="mut">Sorties '+r.o+" · Entrées "+r.i+(it?" · Reste "+it.q:"")+"</div></div>";
+t+="- "+n+" : sorties "+r.o+", entrées "+r.i+(it?", reste "+it.q:"")+"\n";});
+h+="</div>";
+var ws=Object.keys(B.E);
+if(ws.length){h+='<h2>Sorties par salarié</h2><div class="card">';t+="Par salarié :\n";
+ws.forEach(function(w){h+='<div class="pl">'+esc(w)+" : <b>"+B.E[w]+"</b></div>";t+="- "+w+" : "+B.E[w]+"\n";});h+="</div>";}}
+var A=S.items.filter(low);
+if(A.length){h+='<h2>Stock bas</h2><div class="alert">'+A.map(function(i){return "<p>⚠ "+esc(i.n)+" : reste "+i.q+" (seuil "+i.s+")</p>"}).join("")+"</div>";
+t+="Stock bas :\n"+A.map(function(i){return "- "+i.n+" : reste "+i.q}).join("\n");}
+BT=t;$("bl").innerHTML=h;}
+$("bsend").onclick=function(){renderBil();window.open("https://wa.me/?text="+encodeURIComponent(BT),"_blank");};
+$("bmodel").onclick=function(){
+var t="Commande du jour\nNom : \n(une ligne par article : quantité + nom exact)\nExemple : 10 Ciment 50 kg";
+window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");};
+
+var tt;
+function toast(m,bad){var t=$("toast");t.textContent=m;t.style.background=bad?"var(--bad)":"var(--ok)";t.style.display="block";clearTimeout(tt);tt=setTimeout(function(){t.style.display="none"},4500);}
+
+$("shwa").onclick=function(){
+var t="Voici l'app de stock de la quincaillerie : https://claude.ai/artifact/SKK9cKuT6kBVwkckF1qVPE";
+window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");};
+var deferredInstall=null;
+window.addEventListener("beforeinstallprompt",function(e){
+ e.preventDefault();deferredInstall=e;
+ $("installHome").hidden=false;
+});
+$("installHome").onclick=function(){
+ if(deferredInstall){
+   deferredInstall.prompt();
+   deferredInstall.userChoice.then(function(){deferredInstall=null;});
+ }else{
+   toast("Dans le menu du navigateur, choisis « Ajouter à l'écran d'accueil ».");
+ }
+};
+var DL=true;
+function dl(name,data){
+ try{
+   var blob=new Blob([data],{type:name.endsWith(".html")?"text/html;charset=utf-8":"text/csv;charset=utf-8"});
+   var url=URL.createObjectURL(blob);
+   var a=document.createElement("a");
+   a.href=url;a.download=name;a.style.display="none";
+   document.body.appendChild(a);a.click();a.remove();
+   setTimeout(function(){URL.revokeObjectURL(url)},1000);
+   toast("Fichier enregistré.");
+ }catch(e){toast("Téléchargement impossible.",1);}
+}
+$("dlapp").onclick=function(){
+var c=document.documentElement.cloneNode(true);
+c.querySelectorAll("script").forEach(function(x){if(x.id!=="app")x.remove()});
+c.querySelectorAll("link[href*='fonts.googleapis.com']").forEach(function(x){x.remove()});
+c.querySelectorAll("meta[http-equiv]").forEach(function(x){x.remove()});
+["stock","cmd","hist","bil"].forEach(function(t){c.querySelector("#"+t).hidden=(t!=="stock")});
+c.querySelectorAll("nav button").forEach(function(b){b.className=b.dataset.t==="stock"?"on":""});
+dl("stock-quincaillerie.html","<!DOCTYPE html>\n"+c.outerHTML);};
+$("dlstock").onclick=function(){
+var t="Article,Dépôt,Quantité,Seuil minimum\n"+S.items.map(function(i){return '"'+i.n.replace(/"/g,'""')+'","'+i.d+'",'+i.q+","+i.s}).join("\n");
+dl("stock-"+ymd(Date.now())+".csv",t);};
+render();
+</script>
+
+
+</body></html>
